@@ -1,18 +1,36 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import os from "os";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadDir = path.resolve(__dirname, "../../public/uploads");
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// In serverless / Vercel (or AWS Lambda), root filesystem is read-only.
+// Use os.tmpdir() (/tmp) when deployed to serverless.
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const uploadDir = isServerless
+  ? path.join(os.tmpdir(), "uploads")
+  : path.resolve(__dirname, "../../public/uploads");
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn("Notice: could not pre-create upload directory:", err.message);
 }
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    try {
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+    } catch {
+      // Safe fallback
+    }
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {

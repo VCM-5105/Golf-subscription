@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+import os from "os";
 import { fileURLToPath } from "url";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { supabase } from "./db/index.js";
@@ -45,7 +46,10 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 
 // Static files for uploaded scorecards & charity media
-app.use("/uploads", express.static(path.resolve(__dirname, "../public/uploads")));
+const staticUploadsDir = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME)
+  ? path.join(os.tmpdir(), "uploads")
+  : path.resolve(__dirname, "../public/uploads");
+app.use("/uploads", express.static(staticUploadsDir));
 
 app.get("/api/v1/health", async (req, res) => {
   let dbStatus = "unknown";
