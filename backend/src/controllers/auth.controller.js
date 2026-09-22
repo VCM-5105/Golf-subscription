@@ -111,7 +111,11 @@ export const loginUser = asyncHandler(async (req, res) => {
     .ilike("email", email.toLowerCase().trim())
     .maybeSingle();
 
-  if (error || !user) {
+  if (error) {
+    throw new ApiError(500, `Database error during login: ${error.message}`);
+  }
+
+  if (!user) {
     throw new ApiError(401, "Invalid email or password.");
   }
 
