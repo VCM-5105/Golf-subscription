@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import { supabase } from "./db/index.js";
 
 // Import Routers
 import authRouter from "./routes/auth.routes.js";
@@ -46,10 +47,28 @@ app.use(cookieParser());
 // Static files for uploaded scorecards & charity media
 app.use("/uploads", express.static(path.resolve(__dirname, "../public/uploads")));
 
+app.get("/api/v1/health", async (req, res) => {
+  let dbStatus = "unknown";
+  let dbError = null;
+  try {
+    const { error } = await supabase.from("users").select("id").limit(1);
+    if (error) {
+      dbStatus = "error";
+      dbError = error.message;
+    } else {
+      dbStatus = "connected";
+    }
+  } catch (e) {
+    dbStatus = "exception";
+    dbError = e.message;
+  }
 
-app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
     status: "ok",
+    database: dbStatus,
+    dbError,
+    hasSupabaseUrl: Boolean(process.env.SUPABASE_URL),
+    hasServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
     timestamp: new Date().toISOString(),
     message: "Golf Subscription & Charity Draw API is fully operational"
   });

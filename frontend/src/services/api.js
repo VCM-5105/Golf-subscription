@@ -27,10 +27,17 @@ class ApiClient {
 
     try {
       const res = await fetch(url, config);
-      const data = await res.json().catch(() => ({}));
+      const text = await res.text();
+      let data = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = { message: text };
+      }
 
       if (!res.ok) {
-        const error = new Error(data.message || `Request failed with status ${res.status}`);
+        const errorMsg = data?.message || (typeof data === "string" ? data : null) || `Request failed with status ${res.status}`;
+        const error = new Error(errorMsg);
         error.status = res.status;
         error.data = data;
         throw error;
