@@ -38,3 +38,5 @@ logs/
 *.log
 *.sqlite
 scratch/
+__pycache__/
+*.pyc
