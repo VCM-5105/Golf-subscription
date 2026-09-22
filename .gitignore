@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+package-lock.json.bak
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment & Secrets (NEVER COMMIT SENSITIVE KEYS)
+.env
+.env.local
+.env.*.local
+*.env
+
+# Production Builds
+dist/
+dist-ssr/
+build/
+*.local
+
+# Server Uploads & Temp Files
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+
+# IDE & System Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Logs & Runtime Data
+logs/
+*.log
+*.sqlite
+scratch/
