@@ -22,11 +22,15 @@ export const registerUser = asyncHandler(async (req, res) => {
   }
 
   // Check if user already exists
-  const { data: existing } = await supabase
+  const { data: existing, error: checkErr } = await supabase
     .from("users")
     .select("id")
     .ilike("email", email.toLowerCase())
     .maybeSingle();
+
+  if (checkErr) {
+    throw new ApiError(500, `Database error: ${checkErr.message}. Ensure supabase_schema.sql has been executed in your Supabase SQL editor.`);
+  }
 
   if (existing) {
     throw new ApiError(409, "A user with this email already exists.");
