@@ -8,14 +8,14 @@ const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
-      
-      console.log(
-        `Golf Subscription & Charity Draw Backend is running: http://localhost:${PORT}`,
-      );
-     
-    });
+    if (!process.env.VERCEL) {
+      app.listen(PORT, () => {
+        console.log(`Golf Subscription & Charity Draw Backend is running: http://localhost:${PORT}`);
+      });
+    }
   })
   .catch((err) => {
     console.log("DATABASE connection failed !", err);
   });
+
+export default app;
